@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+issueTrackerURL="https://modrinth.com/mod/bst-dlss"
+
+[[mods]]
+modId="bstdlss"
+version="1.0.0"
+displayName="BST DLSS - RTX Hardware Upscaler (20xx-50xx)"
+displayURL="https://modrinth.com/mod/bst-dlss"
+authors="BST Team"
+displayTest="IGNORE_ALL_VERSION"
+description='''
+BST DLSS activates real hardware NVIDIA DLSS Super Resolution & DLAA on NVIDIA GeForce RTX 20xx (Turing), RTX 30xx (Ampere), RTX 40xx (Ada Lovelace), and RTX 50xx (Blackwell) graphics cards in Minecraft Forge (1.18.2 through 26.3).
+
+Features:
+- Hardware NVIDIA NGX Tensor Core Evaluation via WGL_NV_DX_interop2 (D3D11 <-> OpenGL Zero-Copy Bridge)
+- Supports DLSS Ultra Performance (33%), Performance (50%), Balanced (58%), Quality (67%), Ultra Quality (77%), and DLAA (100%)
+- Supports Neural Network Presets C, D, E (CNN) and J, K (DLSS 4 Transformer)
+- Built-in RCAS Contrast-Adaptive Sharpening & Optical Flow Frame Generation
+- Zero external mod dependencies!
+- Hotkeys: [F8] Open RTX Control Panel | [F9] Cycle DLSS Mode | [F10] Toggle Telemetry HUD
+'''
+
+[[dependencies.bstdlss]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.bstdlss]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,27.0)"
+    ordering="NONE"
+    side="CLIENT"

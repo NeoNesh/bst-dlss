@@ -1,0 +1,10 @@
+{
+  "pack": {
+    "description": "BST DLSS - NVIDIA RTX 20xx-50xx Hardware Upscaler Resources",
+    "pack_format": 15,
+    "supported_formats": {
+      "min_inclusive": 8,
+      "max_inclusive": 99
+    }
+  }
+}
