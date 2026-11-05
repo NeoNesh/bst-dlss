@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ public final class McRuntimeBridge {
     private static Field levelField;
     private static Field levelRendererField;
     private static Field screenField;
+    private static Field overlayField;
+    private static Method getOverlayMethod;
     private static Field gameRendererField;
     private static Field optionsField;
 
@@ -109,6 +112,20 @@ public final class McRuntimeBridge {
             levelField = findField(minecraftClass, new String[]{"level", "f_91073_"});
             levelRendererField = findField(minecraftClass, new String[]{"levelRenderer", "f_91060_"});
             screenField = findField(minecraftClass, new String[]{"screen", "f_91080_"});
+            overlayField = findField(minecraftClass, new String[]{"overlay", "f_91079_", "field_203001_aq", "field_203001_a"});
+            getOverlayMethod = findMethod(minecraftClass, new String[]{"getOverlay", "m_91288_", "func_213239_aq"});
+            if (overlayField == null) {
+                try {
+                    for (Field f : minecraftClass.getDeclaredFields()) {
+                        if (f.getType().getName().toLowerCase(Locale.ROOT).contains("overlay") && !Modifier.isStatic(f.getModifiers())) {
+                            f.setAccessible(true);
+                            overlayField = f;
+                            break;
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
             gameRendererField = findField(minecraftClass, new String[]{"gameRenderer", "f_91063_"});
             optionsField = findField(minecraftClass, new String[]{"options", "f_91066_"});
             mcLanguageManagerField = findField(minecraftClass, new String[]{"languageManager", "f_91039_", "f_91040_"});
@@ -254,14 +271,48 @@ public final class McRuntimeBridge {
         }
     }
 
-    public static boolean isScreenOpen() {
+    public static Object getCurrentScreen() {
         Object mc = getMinecraft();
-        if (mc == null || screenField == null) return false;
+        if (mc == null || screenField == null) return null;
         try {
-            return screenField.get(mc) != null;
+            return screenField.get(mc);
         } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    public static boolean isScreenOpen() {
+        return getCurrentScreen() != null;
+    }
+
+    public static boolean isLoadingOverlayActive() {
+        Object mc = getMinecraft();
+        if (mc == null) return false;
+        try {
+            if (getOverlayMethod != null) {
+                return getOverlayMethod.invoke(mc) != null;
+            }
+            if (overlayField != null) {
+                return overlayField.get(mc) != null;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
+    }
+
+    public static boolean isTitleScreen() {
+        Object s = getCurrentScreen();
+        if (s == null) return false;
+        String cn = s.getClass().getName().toLowerCase(Locale.ROOT);
+        return cn.contains("titlescreen") || cn.contains("mainmenu");
+    }
+
+    public static boolean isGameReady() {
+        // If the loading overlay (Mojang splash screen) is still active, the game is NOT ready!
+        if (isLoadingOverlayActive()) {
             return false;
         }
+        return isInWorld() || isTitleScreen() || isScreenOpen();
     }
 
     /**
@@ -520,6 +571,23 @@ public final class McRuntimeBridge {
     }
 
     public static void applyTextureLodBias(float bias) {
+    }
+
+    public static void resetSwapIntervalState() {
+        swapIntervalZeroApplied = false;
+        try {
+            long ctx = GLFW.glfwGetCurrentContext();
+            if (ctx != 0L) {
+                dev.bstdlss.config.BstDlssConfig cfg = dev.bstdlss.config.BstDlssConfig.get();
+                if (cfg.isTurboFpsUncap()) {
+                    GLFW.glfwSwapInterval(0);
+                    swapIntervalZeroApplied = true;
+                } else {
+                    GLFW.glfwSwapInterval(1);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     /**

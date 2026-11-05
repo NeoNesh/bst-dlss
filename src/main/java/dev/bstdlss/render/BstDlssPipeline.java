@@ -1,5 +1,6 @@
 package dev.bstdlss.render;
 
+import dev.bstdlss.boot.FastBootEngine;
 import dev.bstdlss.bridge.McRuntimeBridge;
 import dev.bstdlss.config.BstDlssConfig;
 import dev.bstdlss.config.DlssPreset;
@@ -84,11 +85,22 @@ public final class BstDlssPipeline {
 
         File gameDir = McRuntimeBridge.getGameDirectory();
         BstDlssConfig.get().load(gameDir);
-        BstDlssNative.loadAndInit(gameDir);
+        FastBootEngine.start(gameDir);
+        if (FastBootEngine.isCompleted() || !BstDlssConfig.get().isFastBoot()) {
+            BstDlssNative.loadAndInit(gameDir);
+        }
     }
 
     public static void onFrameStart() {
         ensureInitialized();
+
+        if (!FastBootEngine.isCompleted()) {
+            if (McRuntimeBridge.isGameReady()) {
+                FastBootEngine.markBootComplete();
+            } else {
+                FastBootEngine.throttleEarlyWindowFps();
+            }
+        }
 
         long nowNano = System.nanoTime();
         float dtMs = (nowNano - lastFrameNano) / 1_000_000.0f;
@@ -408,6 +420,10 @@ public final class BstDlssPipeline {
             smoothedDlssEvalMs,
             sessionHardwareNgx
         );
+
+        if (!FastBootEngine.isCompleted() && McRuntimeBridge.isGameReady()) {
+            FastBootEngine.markBootComplete();
+        }
     }
 
     private static void pollHotkeys(long glfwWindow) {

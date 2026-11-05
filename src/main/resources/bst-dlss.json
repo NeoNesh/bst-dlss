@@ -1,0 +1,14 @@
+{
+  "fastBoot": true,
+  "qualityMode": "QUALITY",
+  "dlssPreset": "PRESET_E",
+  "sharpness": 0.20,
+  "frameGenerationEnabled": false,
+  "turboFpsUncap": true,
+  "smartEntityBoost": true,
+  "chunkSimulationBoost": true,
+  "reflexLowLatency": true,
+  "pixelArtCrispFilter": true,
+  "showTelemetryOverlay": false,
+  "preferHardwareNgx": true
+}
