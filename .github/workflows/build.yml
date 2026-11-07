@@ -1,0 +1,58 @@
+name: Build and Verify Native & Mod Artifacts
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Native DLL & Forge Mod JAR (Transparent CI)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup MSVC C++ Compiler Toolchain
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Compile Native C++ DLL (bst_dlss_native.dll)
+        shell: cmd
+        run: |
+          cl /O2 /LD /EHsc /W3 /DNDEBUG /DWIN32_LEAN_AND_MEAN ^
+            /I"%JAVA_HOME%\include" /I"%JAVA_HOME%\include\win32" ^
+            native\src\bst_dlss_native.cpp ^
+            /link /DLL /MACHINE:X64 /OUT:src\main\resources\natives\win64\bst_dlss_native.dll ^
+            opengl32.lib d3d11.lib dxgi.lib advapi32.lib user32.lib gdi32.lib version.lib
+
+      - name: Verify Compiled Native DLL Exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "src/main/resources/natives/win64/bst_dlss_native.dll")) {
+            throw "bst_dlss_native.dll was not compiled successfully!"
+          }
+          $bytes = (Get-Item "src/main/resources/natives/win64/bst_dlss_native.dll").Length
+          Write-Host "Native DLL successfully compiled from C++ source ($bytes bytes)."
+
+      - name: Build Forge Mod JAR with Gradle
+        shell: cmd
+        run: gradlew.bat build --no-daemon --info
+
+      - name: Upload Build Artifacts (JAR and DLL)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bst-dlss-release-artifacts
+          path: |
+            build/libs/*.jar
+            src/main/resources/natives/win64/bst_dlss_native.dll

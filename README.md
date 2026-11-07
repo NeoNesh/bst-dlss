@@ -1,5 +1,9 @@
 # BST DLSS — NVIDIA RTX 20xx–50xx Hardware Upscaler (Forge 1.18.2 – 26.3)
 
+[![Build and Verify Native & Mod Artifacts](https://github.com/NeoNesh/bst-dlss/actions/workflows/build.yml/badge.svg)](https://github.com/NeoNesh/bst-dlss/actions/workflows/build.yml)
+[![Modrinth](https://img.shields.io/badge/Modrinth-BST%20DLSS-00AF5C?logo=modrinth&logoColor=white)](https://modrinth.com/mod/bstdlss)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **BST DLSS** — автономный клиентский мод для **Minecraft Forge (`1.18.2` — `26.3`)** без сторонних зависимостей, активирующий настоящий аппаратный **NVIDIA DLSS Super Resolution** и **DLAA** на тензорных ядрах видеокарт серий **GeForce RTX 20xx (Turing)**, **RTX 30xx (Ampere)**, **RTX 40xx (Ada Lovelace)** и **RTX 50xx (Blackwell)**.
 
 ---
