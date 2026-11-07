@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java 21 (JDK)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -50,7 +50,7 @@ jobs:
         run: gradlew.bat build --no-daemon --info
 
       - name: Upload Build Artifacts (JAR and DLL)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bst-dlss-release-artifacts
           path: |
