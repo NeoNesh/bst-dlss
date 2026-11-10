@@ -49,6 +49,12 @@ jobs:
         shell: cmd
         run: gradlew.bat build --no-daemon --info
 
+      - name: Compute and Output SHA-256 Checksums (Transparent Audit)
+        shell: pwsh
+        run: |
+          Write-Host "=== ARTIFACT SHA-256 CHECKSUMS (FOR MODRINTH VERIFICATION) ==="
+          Get-FileHash (Get-ChildItem "build/libs/*.jar"), "src/main/resources/natives/win64/bst_dlss_native.dll" -Algorithm SHA256 | Format-Table -AutoSize
+
       - name: Upload Build Artifacts (JAR and DLL)
         uses: actions/upload-artifact@v5
         with:
